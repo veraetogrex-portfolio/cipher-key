@@ -1,0 +1,111 @@
+/* Cipher Key — github.com/veraetogrex-portfolio · zero dependencies */
+:root {
+  --bg: #07080c;
+  --panel: #0b0c12;
+  --text: #f2f3f7;
+  --text-2: #a4a7b6;
+  --text-3: #7f8293;
+  --line: rgba(255, 255, 255, .08);
+  --line-2: rgba(255, 255, 255, .14);
+  --pulse: #7c6cff;
+  --pulse-btn: #6a5af9;
+  --pulse-soft: #a69bff;
+  --ion: #3fe0d0;     /* the key holder reads it */
+  --flare: #ff7a45;   /* the eavesdropper */
+  --font: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --display: var(--font);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; min-height: 100vh; display: grid; place-items: center; overflow: hidden;
+  background: radial-gradient(65% 60% at 50% 45%, #0e1018, var(--bg) 72%);
+  color: var(--text); font: 16px/1.4 var(--font);
+}
+h1, p { margin: 0; }
+button, input { font: inherit; color: inherit; }
+button { background: none; border: 0; padding: 0; cursor: pointer; }
+
+.ck { position: relative; width: 1180px; height: 720px; }
+@media (max-width: 1240px) { .ck { zoom: .8; } }
+@media (max-width: 960px)  { .ck { zoom: .6; } }
+@media (max-width: 720px)  { .ck { zoom: .3; } }
+
+/* ── top: mode, key, message ───────────────────────── */
+.ck-top { height: 96px; display: flex; align-items: flex-start; justify-content: space-between; }
+.ck-mode { font: 700 48px/1 var(--display); letter-spacing: .04em; text-transform: uppercase; }
+.ck-mode.is-dec { color: var(--ion); }
+.ck-keyline { margin-top: 14px; display: flex; align-items: center; gap: 12px; font: 500 15px var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--text-3); }
+.ck-keyhex { padding: 5px 12px; border-radius: 8px; font-weight: 500; letter-spacing: .12em; color: var(--pulse-soft); background: rgba(124, 108, 255, .1); box-shadow: 0 0 0 1px rgba(124, 108, 255, .35) inset; }
+.ck-newkey { width: 30px; height: 30px; border-radius: 8px; font-size: 18px; color: var(--text-2); box-shadow: 0 0 0 1px var(--line-2) inset; }
+.ck-newkey:hover { color: var(--text); background: rgba(255, 255, 255, .06); }
+
+.ck-form { display: flex; align-items: center; gap: 12px; }
+.ck-label { font: 500 13px var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--text-3); }
+.ck-input {
+  width: 220px; height: 56px; padding: 0 18px; border-radius: 10px; outline: none;
+  font: 500 24px var(--mono); letter-spacing: .18em; text-transform: uppercase;
+  background: rgba(255, 255, 255, .035); border: 1px solid var(--line-2); transition: border-color .2s, box-shadow .2s;
+}
+.ck-input:focus { border-color: var(--pulse); box-shadow: 0 0 0 4px rgba(124, 108, 255, .18); }
+.ck-go {
+  height: 56px; min-width: 150px; padding: 0 24px; border-radius: 10px; font: 600 18px var(--font); color: #fff;
+  background: var(--pulse-btn); box-shadow: 0 0 0 1px rgba(255, 255, 255, .12) inset, 0 10px 30px -10px rgba(124, 108, 255, .8);
+  transition: background .2s, box-shadow .2s, opacity .2s;
+}
+.ck-go:hover { background: #7d6eff; }
+.ck-go.is-dec { background: var(--ion); color: #05221f; box-shadow: 0 10px 30px -10px rgba(63, 224, 208, .8); }
+.ck-go:disabled { opacity: .55; cursor: default; }
+
+/* ── the dot-matrix screen ─────────────────────────── */
+.ck-screen {
+  position: absolute; left: 0; top: 112px; width: 1180px; height: 300px; border-radius: 24px; overflow: hidden;
+  background: radial-gradient(70% 90% at 50% 50%, #10121b, var(--panel));
+  box-shadow: 0 0 0 1px var(--line) inset, 0 50px 110px -40px rgba(0, 0, 0, .9);
+}
+.ck-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ck-out { position: absolute; left: 0; right: 0; bottom: 18px; text-align: center; font: 500 14px var(--mono); letter-spacing: .2em; color: var(--text-3); text-transform: uppercase; }
+
+/* the key: a scan line that sweeps across the message */
+.ck-scan { position: absolute; left: 0; top: 0; bottom: 0; width: 0; opacity: 0; will-change: transform; pointer-events: none; }
+.ck-scan::before {
+  content: ""; position: absolute; left: -2px; top: 54px; bottom: 0; width: 4px; border-radius: 2px;
+  background: linear-gradient(var(--pulse-soft), var(--pulse) 60%, rgba(124, 108, 255, 0));
+  box-shadow: 0 0 24px 4px rgba(124, 108, 255, .55);
+}
+.ck-scan::after { content: ""; position: absolute; left: -70px; top: 54px; bottom: 0; width: 140px; background: radial-gradient(50% 60% at 50% 40%, rgba(124, 108, 255, .22), transparent); }
+.ck-chip {
+  position: absolute; left: 0; top: 14px; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px 0 10px;
+  border-radius: 999px; background: #1b1838; box-shadow: 0 0 0 1.5px var(--pulse) inset, 0 8px 24px -6px rgba(124, 108, 255, .9);
+  font: 600 15px var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--pulse-soft); white-space: nowrap;
+}
+.ck-chip svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; }
+
+.ck-caption { position: absolute; left: 0; right: 0; top: 432px; text-align: center; font: 500 28px var(--font); letter-spacing: -.01em; color: var(--text); transition: color .3s; }
+.ck-caption.is-bad { color: var(--flare); }
+.ck-caption.is-good { color: var(--ion); }
+
+/* ── who reads what ───────────────────────────────── */
+.ck-readers { position: absolute; left: 0; right: 0; top: 508px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+.ck-reader {
+  position: relative; height: 172px; padding: 26px 30px; border-radius: 20px; background: #0e1016;
+  box-shadow: 0 0 0 1px var(--line) inset; transition: box-shadow .35s, background .35s;
+}
+.ck-who { display: flex; align-items: center; gap: 12px; font: 600 22px var(--font); }
+.ck-who i { width: 12px; height: 12px; border-radius: 50%; background: var(--text-3); transition: background .3s, box-shadow .3s; }
+.ck-who span { margin-left: auto; font: 500 13px var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--text-3); }
+.ck-sees { margin-top: 26px; height: 60px; display: flex; align-items: center; gap: 16px; font: 600 44px/1 var(--mono); letter-spacing: .08em; white-space: nowrap; transition: color .3s; }
+.ck-sees.is-hex { font-size: 34px; letter-spacing: .04em; color: var(--pulse-soft); }
+.ck-sees .ck-mark { flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font: 700 22px var(--font); }
+.ck-friend.is-good { background: #0c1817; box-shadow: 0 0 0 1.5px rgba(63, 224, 208, .55) inset, 0 0 60px -20px rgba(63, 224, 208, .6); }
+.ck-friend.is-good .ck-who i { background: var(--ion); box-shadow: 0 0 12px var(--ion); }
+.ck-friend.is-good .ck-sees { color: var(--ion); }
+.ck-friend .ck-mark { background: var(--ion); color: #05221f; }
+.ck-spy .ck-who i { background: var(--flare); }
+.ck-spy.is-plain .ck-sees { color: var(--flare); }
+.ck-spy.is-bad { box-shadow: 0 0 0 1.5px rgba(255, 122, 69, .5) inset; }
+.ck-spy.is-bad .ck-sees { color: #6b6e7d; text-decoration: line-through; text-decoration-color: var(--flare); text-decoration-thickness: 3px; }
+.ck-spy .ck-mark { background: var(--flare); color: #2a0c00; text-decoration: none; }
+
+@media (prefers-reduced-motion: reduce) { .ck-scan::after { display: none; } }

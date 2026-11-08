@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>T11 Cipher Key — a key turns the message into noise and back</title>
+<link rel="stylesheet" href="_shared/nocturne.css">
+<link rel="stylesheet" href="../style.css">
+<style>
+  /* the component from source/, dressed in Nocturne type */
+  #stage{background:radial-gradient(ellipse 65% 60% at 50% 45%,#0E1018 0%,var(--void) 72%);
+    --font:var(--f-text);--mono:var(--f-mono);--display:var(--f-display)}
+  #stage .ck{position:absolute;left:130px;top:80px;zoom:1;z-index:1}
+  #stage .ck-screen .hud-corners{inset:-12px}
+  .halo{position:absolute;left:50%;top:40%;width:1300px;height:700px;margin:-350px 0 0 -650px;border-radius:50%;pointer-events:none;z-index:0;
+    background:radial-gradient(closest-side,rgba(124,108,255,.10),rgba(124,108,255,0))}
+</style>
+</head>
+<body>
+<div id="stage" class="grid" data-title="T11 Cipher Key" data-url="veraetogrex-portfolio.github.io/cipher-key">
+  <div class="halo"></div>
+  <section class="ck" id="cipher" data-key="A7 3C 91 5E D2 08" aria-label="Encrypt a message with a key">
+    <header class="ck-top">
+      <div>
+        <h1 class="ck-mode">Encryption</h1>
+        <p class="ck-keyline">Key <b class="ck-keyhex"></b> <button class="ck-newkey" title="New random key" aria-label="New random key">↻</button></p>
+      </div>
+      <form class="ck-form">
+        <label class="ck-label" for="ck-msg">Message</label>
+        <input class="ck-input" id="ck-msg" maxlength="8" value="SECRET" autocomplete="off" spellcheck="false">
+        <button class="ck-go" type="submit">Encrypt</button>
+      </form>
+    </header>
+    <div class="ck-screen">
+      <canvas class="ck-canvas" aria-hidden="true"></canvas>
+      <div class="ck-scan" aria-hidden="true">
+        <span class="ck-chip"><svg viewBox="0 0 24 24"><circle cx="7.5" cy="12" r="4.5"/><path d="M12 12h10M18 12v4M21 12v3"/></svg>key</span>
+      </div>
+      <p class="ck-out" role="status"></p>
+    </div>
+    <p class="ck-caption">Plain text. Anyone can read it.</p>
+    <div class="ck-readers">
+      <div class="ck-reader ck-friend">
+        <p class="ck-who"><i></i>Friend <span>has the key</span></p>
+        <p class="ck-sees"></p>
+      </div>
+      <div class="ck-reader ck-spy">
+        <p class="ck-who"><i></i>Eavesdropper <span>no key</span></p>
+        <p class="ck-sees"></p>
+      </div>
+    </div>
+  </section>
+  <div class="status-line"><span>Veraetogrex · T11</span><span>XOR cipher · 48-bit key</span></div>
+</div>
+
+<script src="_shared/stage.js"></script>
+<script src="../script.js"></script>
+<script>
+const ck = document.querySelector('#cipher').cipher;
+Stage.init({
+  reset: () => ck.reset(),
+  cursorStart: [-80, -80],                 // no cursor: the scene plays itself
+  async demo(s) {
+    const t0 = performance.now();
+    await s.until(t0, 600);
+    ck.encrypt();                          // 0.6 key sweeps → bytes, 2.6 eavesdropper gets noise
+    await s.until(t0, 3500);
+    ck.decrypt();                          // 3.5 key sweeps back → Ion letters, 5.4 friend ✓
+    await s.until(t0, 6300);
+    ck.restore();                          // 6.3 cools to white = first frame
+    await s.until(t0, 7000);
+  },
+});
+</script>
+</body>
+</html>
